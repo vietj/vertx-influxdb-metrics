@@ -2,6 +2,7 @@ package io.vertx.metrics.influxdb;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServer;
@@ -19,11 +20,12 @@ public class Main {
 
     Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(new MetricsOptions().setEnabled(true)));
 
-    Random serviceTime = new Random();
+    Random random = new Random();
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestHandler(req -> {
-      vertx.setTimer(1 + serviceTime.nextInt(1000), id -> {
-        req.response().end();
+      vertx.setTimer(1 + random.nextInt(1000), id -> {
+        Buffer body = Buffer.buffer(new byte[1 + random.nextInt(2000)]);
+        req.response().putHeader("Content-Length", "" + body.length()).write(body).end();
       });
     });
     server.listen(ar -> {
@@ -40,10 +42,10 @@ public class Main {
   private static void startInject(Vertx vertx) {
     HttpClient client = vertx.createHttpClient(new HttpClientOptions().setDefaultPort(8080));
     Random random = new Random();
+    Buffer body = Buffer.buffer(new byte[1 + random.nextInt(2000)]);
     vertx.setPeriodic(5, id -> {
       client.get("/index.html", response -> {
-
-      }).end();
+      }).putHeader("Content-Length", "" + body.length()).write(body).end();
     });
   }
 }

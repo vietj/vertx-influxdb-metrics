@@ -1,51 +1,27 @@
 package io.vertx.metrics.influxdb;
 
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.net.SocketAddress;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.spi.metrics.HttpClientMetrics;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class HttpClientMetricsImpl implements HttpClientMetrics {
+public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClientMetrics<JsonArray, Void> {
 
-  @Override
-  public Object requestBegin(HttpClientRequest request) {
-    return null;
+  public HttpClientMetricsImpl(Vertx vertx) {
+    super(vertx, "http_client_requests", "http_client_tcp");
   }
 
   @Override
-  public void responseEnd(Object requestMetric, HttpClientRequest request, HttpClientResponse response) {
+  public JsonArray requestBegin(HttpClientRequest request) {
+    return createRequestMetric(request.method(), request.uri());
   }
 
   @Override
-  public Object connected(SocketAddress remoteAddress) {
-    return null;
-  }
-
-  @Override
-  public void disconnected(Object socketMetric, SocketAddress remoteAddress) {
-  }
-
-  @Override
-  public void bytesRead(Object socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
-  }
-
-  @Override
-  public void bytesWritten(Object socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
-  }
-
-  @Override
-  public void exceptionOccurred(Object socketMetric, SocketAddress remoteAddress, Throwable t) {
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
-
-  @Override
-  public void close() {
+  public void responseEnd(JsonArray requestMetric, HttpClientResponse response) {
+    reportRequestMetric(requestMetric);
   }
 }

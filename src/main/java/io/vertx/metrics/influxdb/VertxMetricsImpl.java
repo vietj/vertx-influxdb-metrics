@@ -65,7 +65,7 @@ public class VertxMetricsImpl implements VertxMetrics {
 
   @Override
   public HttpClientMetrics<?, ?> createMetrics(HttpClient client, HttpClientOptions options) {
-    return new HttpClientMetricsImpl();
+    return new HttpClientMetricsImpl(vertx);
   }
 
   @Override
