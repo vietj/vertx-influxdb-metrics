@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMetrics {
 
+  private final InfluxDBOptions options;
   private final Deque<JsonArray> sent = new ConcurrentLinkedDeque<>();
   private final Deque<JsonArray> received = new ConcurrentLinkedDeque<>();
   private final AtomicReference<ConcurrentMap<String, AtomicLong>> messageBytesWritten = new AtomicReference<>();
@@ -29,6 +30,7 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
     super(options, vertx);
     messageBytesRead.set(new ConcurrentHashMap<>());
     messageBytesWritten.set(new ConcurrentHashMap<>());
+    this.options = options;
   }
 
   @Override
@@ -55,17 +57,17 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
       messageBytesPoints.add(new JsonArray().add(bytesReadMetric.getKey()).add(bytesReadMetric.getValue().get()).add(bytesWrittenMetric != null ? bytesWrittenMetric.get() : 0));
     }
     series.add(new JsonObject().
-        put("name", "eventbus_sent").
+        put("name", options.getEventBusMessageSentSerie()).
         put("columns", new JsonArray().add("time").add("address").add("publish").add("local").add("remote")).
         put("points", sendPoints)
     );
     series.add(new JsonObject().
-        put("name", "eventbus_received").
+        put("name", options.getEventBusMessageReceivedSerie()).
         put("columns", new JsonArray().add("time").add("address").add("publish").add("local").add("handlers")).
         put("points", receivedPoints)
     );
     series.add(new JsonObject().
-        put("name", "eventbus_messages_bytes").
+        put("name", options.getEventBusTcpSerie()).
         put("columns", new JsonArray().add("address").add("bytes_read").add("bytes_written")).
         put("points", messageBytesPoints)
     );

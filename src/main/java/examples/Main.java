@@ -23,7 +23,7 @@ public class Main {
 
     Vertx.clusteredVertx(new VertxOptions().
         setClustered(true).
-        setMetricsOptions(new InfluxDBOptions().setEnabled(true)), ar -> {
+        setMetricsOptions(new InfluxDBOptions().setEnabled(true).prefixSeriesWith("server_")), ar -> {
       if (ar.succeeded()) {
         Vertx vertx = ar.result();
         vertx.eventBus().consumer("the_address", msg -> {
@@ -42,7 +42,7 @@ public class Main {
 
     Vertx.clusteredVertx(new VertxOptions().
         setClustered(true).
-        setMetricsOptions(new InfluxDBOptions().setEnabled(true)), ar -> {
+        setMetricsOptions(new InfluxDBOptions().setEnabled(true).prefixSeriesWith("backend_")), ar -> {
       if (ar.succeeded()) {
         Vertx vertx = ar.result();
         HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
@@ -59,7 +59,7 @@ public class Main {
         server.listen(ar2 -> {
           if (ar2.succeeded()) {
             System.out.println("Server started");
-            startInject(Vertx.vertx(new VertxOptions().setMetricsOptions(new InfluxDBOptions().setEnabled(true))));
+            startInject();
           } else {
             System.out.println("Could not start");
             ar.cause().printStackTrace();
@@ -71,7 +71,8 @@ public class Main {
     });
   }
 
-  private static void startInject(Vertx vertx) {
+  private static void startInject() {
+    Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(new InfluxDBOptions().setEnabled(true).prefixSeriesWith("client_")));
     HttpClient client = vertx.createHttpClient(new HttpClientOptions().setDefaultPort(8080));
     Random random = new Random();
     Buffer body = Buffer.buffer(new byte[1 + random.nextInt(2000)]);

@@ -13,7 +13,7 @@ import io.vertx.metrics.influxdb.InfluxDBOptions;
 public class HttpServerMetricsImpl extends HttpMetricsImpl implements HttpServerMetrics<JsonArray, Void> {
 
   public HttpServerMetricsImpl(InfluxDBOptions options, Vertx vertx) {
-    super(options, vertx, "http_server_requests", "tcp_http_server");
+    super(options, vertx, options.getHttpServerRequestsSerie(), options.getHttpServerTcpSerie());
   }
 
   @Override

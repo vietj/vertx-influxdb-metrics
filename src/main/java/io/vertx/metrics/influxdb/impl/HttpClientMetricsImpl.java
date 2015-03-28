@@ -14,7 +14,7 @@ import io.vertx.metrics.influxdb.InfluxDBOptions;
 public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClientMetrics<JsonArray, Void> {
 
   public HttpClientMetricsImpl(InfluxDBOptions options, Vertx vertx) {
-    super(options, vertx, "http_client_requests", "tcp_http_client");
+    super(options, vertx, options.getHttpClientRequestsSerie(), options.getHttpClientTcpSerie());
   }
 
   @Override

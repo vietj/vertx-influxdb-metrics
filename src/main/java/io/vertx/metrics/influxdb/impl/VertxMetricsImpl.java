@@ -73,12 +73,12 @@ public class VertxMetricsImpl implements VertxMetrics {
 
   @Override
   public TCPMetrics<?> createMetrics(NetServer server, SocketAddress localAddress, NetServerOptions options) {
-    return new TCPMetricsImpl(this.options, vertx, "tcp_server").schedule();
+    return new TCPMetricsImpl(this.options, vertx, this.options.getTcpServerSerie()).schedule();
   }
 
   @Override
   public TCPMetrics<?> createMetrics(NetClient client, NetClientOptions options) {
-    return new TCPMetricsImpl(this.options, vertx, "tcp_client").schedule();
+    return new TCPMetricsImpl(this.options, vertx, this.options.getTcpClientSerie()).schedule();
   }
 
   @Override
