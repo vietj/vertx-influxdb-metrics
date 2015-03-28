@@ -27,6 +27,6 @@ public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClient
 
   @Override
   public void responseEnd(JsonArray requestMetric, HttpClientResponse response) {
-    reportRequestMetric(requestMetric);
+    reportRequestMetric(requestMetric, response.statusCode());
   }
 }

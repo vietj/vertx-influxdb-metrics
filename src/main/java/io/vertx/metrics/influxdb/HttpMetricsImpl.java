@@ -31,7 +31,7 @@ public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetri
     }
     series.add(new JsonObject().
         put("name", requestSerieName).
-        put("columns", new JsonArray().add("time").add("method").add("uri").add("duration")).
+        put("columns", new JsonArray().add("time").add("method").add("uri").add("duration").add("status")).
         put("points", requestPoints)
     );
   }
@@ -44,8 +44,8 @@ public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetri
     return point;
   }
 
-  protected void reportRequestMetric(JsonArray point) {
-    requests.add(point.add(System.currentTimeMillis() - point.getLong(0)));
+  protected void reportRequestMetric(JsonArray point, int status) {
+    requests.add(point.add(System.currentTimeMillis() - point.getLong(0)).add(status));
   }
 
   @Override

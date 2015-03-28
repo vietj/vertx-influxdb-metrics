@@ -24,7 +24,11 @@ public class Main {
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     vertx.eventBus().consumer("the_address", msg -> {
       vertx.setTimer(1 + random.nextInt(1000), id -> {
-        msg.reply(Buffer.buffer(new byte[1 + random.nextInt(2000)]));
+        if (random.nextInt(100) > 10) {
+          msg.reply(Buffer.buffer(new byte[1 + random.nextInt(2000)]));
+        } else {
+          msg.fail(500, "an error occured");
+        }
       });
     });
     server.requestHandler(req -> {
