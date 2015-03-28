@@ -22,8 +22,8 @@ public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClient
   }
 
   @Override
-  public JsonArray requestBegin(SocketAddress remoteAddress, HttpClientRequest request) {
-    return createRequestMetric(remoteAddress.host(), request.method(), request.uri());
+  public JsonArray requestBegin(SocketAddress localAddress, SocketAddress remoteAddress, HttpClientRequest request) {
+    return createRequestMetric(localAddress, remoteAddress, request.method(), request.uri());
   }
 
   @Override

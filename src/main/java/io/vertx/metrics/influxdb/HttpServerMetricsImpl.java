@@ -22,7 +22,7 @@ public class HttpServerMetricsImpl extends HttpMetricsImpl implements HttpServer
 
   @Override
   public JsonArray requestBegin(HttpServerRequest request) {
-    return createRequestMetric(request.remoteAddress().host(), request.method(), request.uri());
+    return createRequestMetric(request.localAddress(), request.remoteAddress(), request.method(), request.uri());
   }
 
   @Override
