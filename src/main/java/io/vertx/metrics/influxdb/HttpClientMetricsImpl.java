@@ -12,8 +12,8 @@ import io.vertx.core.spi.metrics.HttpClientMetrics;
  */
 public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClientMetrics<JsonArray, Void> {
 
-  public HttpClientMetricsImpl(Vertx vertx) {
-    super(vertx, "http_client_requests", "tcp_http_client");
+  public HttpClientMetricsImpl(InfluxDBOptions options, Vertx vertx) {
+    super(options, vertx, "http_client_requests", "tcp_http_client");
   }
 
   @Override

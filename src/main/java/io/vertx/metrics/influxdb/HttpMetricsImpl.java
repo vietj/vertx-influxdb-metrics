@@ -17,8 +17,8 @@ public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetri
   private final ConcurrentLinkedDeque<JsonArray> requests = new ConcurrentLinkedDeque<>();
   private final String requestSerieName;
 
-  public HttpMetricsImpl(Vertx vertx, String requestSerieName, String tcpSerieName) {
-    super(vertx, tcpSerieName);
+  public HttpMetricsImpl(InfluxDBOptions options, Vertx vertx, String requestSerieName, String tcpSerieName) {
+    super(options, vertx, tcpSerieName);
     this.requestSerieName = requestSerieName;
   }
 

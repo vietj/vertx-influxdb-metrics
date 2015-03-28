@@ -24,8 +24,8 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
   private final AtomicReference<ConcurrentMap<String, AtomicLong>> messageBytesWritten = new AtomicReference<>();
   private final AtomicReference<ConcurrentMap<String, AtomicLong>> messageBytesRead = new AtomicReference<>();
 
-  public EventBusMetricsImpl(Vertx vertx) {
-    super(vertx);
+  public EventBusMetricsImpl(InfluxDBOptions options, Vertx vertx) {
+    super(options, vertx);
     messageBytesRead.set(new ConcurrentHashMap<>());
     messageBytesWritten.set(new ConcurrentHashMap<>());
   }

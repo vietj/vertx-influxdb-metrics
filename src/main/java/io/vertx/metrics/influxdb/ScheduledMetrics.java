@@ -16,16 +16,19 @@ public abstract class ScheduledMetrics implements Metrics {
   private volatile boolean closed;
   protected final Vertx vertx;
   private final HttpClient client;
+  private final InfluxDBOptions options;
+  private final String requestURI;
 
-  public ScheduledMetrics(Vertx vertx) {
+  public ScheduledMetrics(InfluxDBOptions options, Vertx vertx) {
+    this.requestURI = "/db/" + options.getDB() + "/series?time_precision=ms&u=" + options.getUsername() + "&p=" + options.getPassword();
     this.vertx = vertx;
+    this.options = options;
     this.client = vertx.createHttpClient(new HttpClientOptions().
-        setDefaultHost("localhost").
-        setDefaultPort(8086));
+        setDefaultHost(options.getHost()).
+        setDefaultPort(options.getPort()));
   }
 
   protected void collectSeries(JsonArray series) {
-
   }
 
   public ScheduledMetrics schedule() {
@@ -34,7 +37,7 @@ public abstract class ScheduledMetrics implements Metrics {
       collectSeries(series);
       String s = series.encode();
       Buffer buffer = Buffer.buffer(s);
-      HttpClientRequest req = client.post("/db/vertx/series?u=root&p=root&time_precision=ms", response -> {
+      HttpClientRequest req = client.post(requestURI, response -> {
         if (response.statusCode() != 200) {
           System.out.println("response " + response.statusCode());
           response.bodyHandler(msg -> {

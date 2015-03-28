@@ -11,8 +11,8 @@ import io.vertx.core.spi.metrics.HttpServerMetrics;
  */
 public class HttpServerMetricsImpl extends HttpMetricsImpl implements HttpServerMetrics<JsonArray, Void> {
 
-  public HttpServerMetricsImpl(Vertx vertx) {
-    super(vertx, "http_server_requests", "tcp_http_server");
+  public HttpServerMetricsImpl(InfluxDBOptions options, Vertx vertx) {
+    super(options, vertx, "http_server_requests", "tcp_http_server");
   }
 
   @Override

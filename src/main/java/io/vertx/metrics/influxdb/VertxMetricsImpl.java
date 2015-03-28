@@ -27,9 +27,11 @@ import io.vertx.core.spi.metrics.VertxMetrics;
 public class VertxMetricsImpl implements VertxMetrics {
 
   private final Vertx vertx;
+  private final InfluxDBOptions options;
 
-  public VertxMetricsImpl() {
-  vertx = Vertx.vertx();
+  public VertxMetricsImpl(InfluxDBOptions options) {
+    this.vertx = Vertx.vertx();
+    this.options = new InfluxDBOptions(options);
   }
 
   @Override
@@ -55,27 +57,27 @@ public class VertxMetricsImpl implements VertxMetrics {
 
   @Override
   public EventBusMetrics createMetrics(EventBus eventBus) {
-    return new EventBusMetricsImpl(vertx).schedule();
+    return new EventBusMetricsImpl(options, vertx).schedule();
   }
 
   @Override
   public HttpServerMetrics<?, ?> createMetrics(HttpServer server, SocketAddress localAddress, HttpServerOptions options) {
-    return new HttpServerMetricsImpl(vertx).schedule();
+    return new HttpServerMetricsImpl(this.options, vertx).schedule();
   }
 
   @Override
   public HttpClientMetrics<?, ?> createMetrics(HttpClient client, HttpClientOptions options) {
-    return new HttpClientMetricsImpl(vertx).schedule();
+    return new HttpClientMetricsImpl(this.options, vertx).schedule();
   }
 
   @Override
   public TCPMetrics<?> createMetrics(NetServer server, SocketAddress localAddress, NetServerOptions options) {
-    return new TCPMetricsImpl(vertx, "tcp_server").schedule();
+    return new TCPMetricsImpl(this.options, vertx, "tcp_server").schedule();
   }
 
   @Override
   public TCPMetrics<?> createMetrics(NetClient client, NetClientOptions options) {
-    return new TCPMetricsImpl(vertx, "tcp_client").schedule();
+    return new TCPMetricsImpl(this.options, vertx, "tcp_client").schedule();
   }
 
   @Override

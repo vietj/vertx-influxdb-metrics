@@ -18,7 +18,7 @@ public class Main {
 
   public static void main(String[] args) throws Exception {
 
-    Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(new MetricsOptions().setEnabled(true)));
+    Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(new InfluxDBOptions().setEnabled(true)));
 
     Random random = new Random();
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));

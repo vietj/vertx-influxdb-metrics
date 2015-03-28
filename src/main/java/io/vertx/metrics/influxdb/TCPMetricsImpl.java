@@ -18,8 +18,8 @@ public class TCPMetricsImpl extends ScheduledMetrics implements TCPMetrics<Void>
   private final AtomicLong bytesRead = new AtomicLong();
   private final AtomicLong connectionCount = new AtomicLong();
 
-  public TCPMetricsImpl(Vertx vertx, String tcpSerieName) {
-    super(vertx);
+  public TCPMetricsImpl(InfluxDBOptions options, Vertx vertx, String tcpSerieName) {
+    super(options, vertx);
     this.tcpSerieName = tcpSerieName;
   }
 
