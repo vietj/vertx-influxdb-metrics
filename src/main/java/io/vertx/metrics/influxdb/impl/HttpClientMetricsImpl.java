@@ -1,4 +1,4 @@
-package io.vertx.metrics.influxdb;
+package io.vertx.metrics.influxdb.impl;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClientRequest;
@@ -6,6 +6,7 @@ import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.core.spi.metrics.HttpClientMetrics;
+import io.vertx.metrics.influxdb.InfluxDBOptions;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>

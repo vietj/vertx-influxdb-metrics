@@ -1,1 +1,1 @@
-io.vertx.metrics.influxdb.VertxMetricsFactoryImpl
+io.vertx.metrics.influxdb.impl.VertxMetricsFactoryImpl

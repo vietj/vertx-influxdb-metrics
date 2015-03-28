@@ -1,10 +1,11 @@
-package io.vertx.metrics.influxdb;
+package io.vertx.metrics.influxdb.impl;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyFailure;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.metrics.EventBusMetrics;
+import io.vertx.metrics.influxdb.InfluxDBOptions;
 
 import java.util.Deque;
 import java.util.Map;

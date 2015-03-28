@@ -1,4 +1,4 @@
-package io.vertx.metrics.influxdb;
+package io.vertx.metrics.influxdb.impl;
 
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
@@ -20,6 +20,7 @@ import io.vertx.core.spi.metrics.HttpClientMetrics;
 import io.vertx.core.spi.metrics.HttpServerMetrics;
 import io.vertx.core.spi.metrics.TCPMetrics;
 import io.vertx.core.spi.metrics.VertxMetrics;
+import io.vertx.metrics.influxdb.InfluxDBOptions;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
