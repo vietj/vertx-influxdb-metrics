@@ -28,7 +28,7 @@ public abstract class ScheduledMetrics implements Metrics {
 
   }
 
-  public void schedule() {
+  public ScheduledMetrics schedule() {
     vertx.setTimer(1000, id -> {
       JsonArray series = new JsonArray();
       collectSeries(series);
@@ -56,6 +56,7 @@ public abstract class ScheduledMetrics implements Metrics {
       req.write(buffer);
       req.end();
     });
+    return this;
   }
 
   @Override

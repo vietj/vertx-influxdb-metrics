@@ -24,6 +24,11 @@ public class TCPMetricsImpl extends ScheduledMetrics implements TCPMetrics<Void>
   }
 
   @Override
+  public TCPMetricsImpl schedule() {
+    return (TCPMetricsImpl) super.schedule();
+  }
+
+  @Override
   protected void collectSeries(JsonArray series) {
     super.collectSeries(series);
     JsonObject httpTcp = new JsonObject().

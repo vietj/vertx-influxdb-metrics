@@ -22,7 +22,6 @@ public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetri
     super(vertx, tcpSerieName);
     this.requestSerieName = requestSerieName;
     requests.set(new ConcurrentLinkedDeque<>());
-    schedule();
   }
 
   @Override

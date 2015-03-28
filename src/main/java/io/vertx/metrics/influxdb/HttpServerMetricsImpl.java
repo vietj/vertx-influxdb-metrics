@@ -16,6 +16,11 @@ public class HttpServerMetricsImpl extends HttpMetricsImpl implements HttpServer
   }
 
   @Override
+  public HttpServerMetricsImpl schedule() {
+    return (HttpServerMetricsImpl) super.schedule();
+  }
+
+  @Override
   public JsonArray requestBegin(HttpServerRequest request) {
     return createRequestMetric(request.method(), request.uri());
   }

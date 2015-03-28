@@ -55,27 +55,27 @@ public class VertxMetricsImpl implements VertxMetrics {
 
   @Override
   public EventBusMetrics createMetrics(EventBus eventBus) {
-    return new EventBusMetricsImpl(vertx);
+    return new EventBusMetricsImpl(vertx).schedule();
   }
 
   @Override
   public HttpServerMetrics<?, ?> createMetrics(HttpServer server, SocketAddress localAddress, HttpServerOptions options) {
-    return new HttpServerMetricsImpl(vertx);
+    return new HttpServerMetricsImpl(vertx).schedule();
   }
 
   @Override
   public HttpClientMetrics<?, ?> createMetrics(HttpClient client, HttpClientOptions options) {
-    return new HttpClientMetricsImpl(vertx);
+    return new HttpClientMetricsImpl(vertx).schedule();
   }
 
   @Override
   public TCPMetrics<?> createMetrics(NetServer server, SocketAddress localAddress, NetServerOptions options) {
-    return new TCPMetricsImpl(vertx, "tcp_server");
+    return new TCPMetricsImpl(vertx, "tcp_server").schedule();
   }
 
   @Override
   public TCPMetrics<?> createMetrics(NetClient client, NetClientOptions options) {
-    return new TCPMetricsImpl(vertx, "tcp_client");
+    return new TCPMetricsImpl(vertx, "tcp_client").schedule();
   }
 
   @Override

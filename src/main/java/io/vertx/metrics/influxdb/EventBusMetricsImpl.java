@@ -31,6 +31,11 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
   }
 
   @Override
+  public EventBusMetricsImpl schedule() {
+    return (EventBusMetricsImpl) super.schedule();
+  }
+
+  @Override
   protected void collectSeries(JsonArray series) {
     super.collectSeries(series);
     JsonArray sendPoints = new JsonArray();
@@ -39,7 +44,7 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
     }
     JsonArray receivedPoints = new JsonArray();
     for (int size = received.size(); size > 0;size--) {
-      sendPoints.add(received.pop());
+      receivedPoints.add(received.pop());
     }
     JsonArray messageBytesPoints = new JsonArray();
     ConcurrentMap<String, AtomicLong> bytesReadMetrics = messageBytesRead.getAndSet(new ConcurrentHashMap<>());

@@ -22,10 +22,19 @@ public class Main {
 
     Random random = new Random();
     HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    server.requestHandler(req -> {
+    vertx.eventBus().consumer("the_address", msg -> {
       vertx.setTimer(1 + random.nextInt(1000), id -> {
-        Buffer body = Buffer.buffer(new byte[1 + random.nextInt(2000)]);
-        req.response().putHeader("Content-Length", "" + body.length()).write(body).end();
+        msg.reply(Buffer.buffer(new byte[1 + random.nextInt(2000)]));
+      });
+    });
+    server.requestHandler(req -> {
+      vertx.eventBus().<Buffer>send("the_address", "ping", reply -> {
+        if (reply.succeeded()) {
+          Buffer buffer = reply.result().body();
+          req.response().putHeader("Content-Length", "" + buffer.length()).write(buffer).end();
+        } else {
+          req.response().setStatusCode(500).end();
+        }
       });
     });
     server.listen(ar -> {
