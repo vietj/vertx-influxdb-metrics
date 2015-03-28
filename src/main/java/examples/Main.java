@@ -1,4 +1,4 @@
-package io.vertx.metrics.influxdb;
+package examples;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -8,6 +8,7 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.metrics.MetricsOptions;
+import io.vertx.metrics.influxdb.InfluxDBOptions;
 
 import java.util.Random;
 
