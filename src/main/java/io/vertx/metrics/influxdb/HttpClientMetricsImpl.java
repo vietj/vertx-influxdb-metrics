@@ -12,7 +12,7 @@ import io.vertx.core.spi.metrics.HttpClientMetrics;
 public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClientMetrics<JsonArray, Void> {
 
   public HttpClientMetricsImpl(Vertx vertx) {
-    super(vertx, "http_client_requests", "http_client_tcp");
+    super(vertx, "http_client_requests", "tcp_http_client");
   }
 
   @Override

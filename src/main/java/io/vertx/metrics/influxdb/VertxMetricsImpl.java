@@ -70,12 +70,12 @@ public class VertxMetricsImpl implements VertxMetrics {
 
   @Override
   public TCPMetrics<?> createMetrics(NetServer server, SocketAddress localAddress, NetServerOptions options) {
-    return new TCPMetricsImpl();
+    return new TCPMetricsImpl(vertx, "tcp_server");
   }
 
   @Override
   public TCPMetrics<?> createMetrics(NetClient client, NetClientOptions options) {
-    return new TCPMetricsImpl();
+    return new TCPMetricsImpl(vertx, "tcp_client");
   }
 
   @Override
