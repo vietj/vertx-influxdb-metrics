@@ -18,35 +18,53 @@ public class Main {
 
   public static void main(String[] args) throws Exception {
 
-    Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(new InfluxDBOptions().setEnabled(true)));
-
     Random random = new Random();
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
-    vertx.eventBus().consumer("the_address", msg -> {
-      vertx.setTimer(1 + random.nextInt(1000), id -> {
-        if (random.nextInt(100) > 10) {
-          msg.reply(Buffer.buffer(new byte[1 + random.nextInt(2000)]));
-        } else {
-          msg.fail(500, "an error occured");
-        }
-      });
-    });
-    server.requestHandler(req -> {
-      vertx.eventBus().<Buffer>send("the_address", "ping", reply -> {
-        if (reply.succeeded()) {
-          Buffer buffer = reply.result().body();
-          req.response().putHeader("Content-Length", "" + buffer.length()).write(buffer).end();
-        } else {
-          req.response().setStatusCode(500).end();
-        }
-      });
-    });
-    server.listen(ar -> {
+
+    Vertx.clusteredVertx(new VertxOptions().
+        setClustered(true).
+        setMetricsOptions(new InfluxDBOptions().setEnabled(true)), ar -> {
       if (ar.succeeded()) {
-        System.out.println("Server started");
-        startInject(vertx);
+        Vertx vertx = ar.result();
+        vertx.eventBus().consumer("the_address", msg -> {
+          vertx.setTimer(1 + random.nextInt(1000), id -> {
+            if (random.nextInt(100) > 10) {
+              msg.reply(Buffer.buffer(new byte[1 + random.nextInt(2000)]));
+            } else {
+              msg.fail(500, "an error occured");
+            }
+          });
+        });
       } else {
-        System.out.println("Could not start");
+        ar.cause().printStackTrace();
+      }
+    });
+
+    Vertx.clusteredVertx(new VertxOptions().
+        setClustered(true).
+        setMetricsOptions(new InfluxDBOptions().setEnabled(true)), ar -> {
+      if (ar.succeeded()) {
+        Vertx vertx = ar.result();
+        HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+        server.requestHandler(req -> {
+          vertx.eventBus().<Buffer>send("the_address", "ping", reply -> {
+            if (reply.succeeded()) {
+              Buffer buffer = reply.result().body();
+              req.response().putHeader("Content-Length", "" + buffer.length()).write(buffer).end();
+            } else {
+              req.response().setStatusCode(500).end();
+            }
+          });
+        });
+        server.listen(ar2 -> {
+          if (ar2.succeeded()) {
+            System.out.println("Server started");
+            startInject(Vertx.vertx(new VertxOptions().setMetricsOptions(new InfluxDBOptions().setEnabled(true))));
+          } else {
+            System.out.println("Could not start");
+            ar.cause().printStackTrace();
+          }
+        });
+      } else {
         ar.cause().printStackTrace();
       }
     });
