@@ -4,6 +4,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.net.SocketAddress;
 import io.vertx.core.spi.metrics.HttpClientMetrics;
 
 /**
@@ -21,8 +22,8 @@ public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClient
   }
 
   @Override
-  public JsonArray requestBegin(HttpClientRequest request) {
-    return createRequestMetric(request.method(), request.uri());
+  public JsonArray requestBegin(SocketAddress remoteAddress, HttpClientRequest request) {
+    return createRequestMetric(remoteAddress.host(), request.method(), request.uri());
   }
 
   @Override

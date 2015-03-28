@@ -30,22 +30,23 @@ public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetri
       requestPoints.add(requests.pop());
     }
     series.add(new JsonObject().
-        put("name", requestSerieName).
-        put("columns", new JsonArray().add("time").add("method").add("uri").add("duration").add("status")).
-        put("points", requestPoints)
+            put("name", requestSerieName).
+            put("columns", new JsonArray().add("time").add("remote_host").add("method").add("uri").add("status").add("duration")).
+            put("points", requestPoints)
     );
   }
 
-  protected JsonArray createRequestMetric(HttpMethod method, String uri) {
+  protected JsonArray createRequestMetric(String remoteHost, HttpMethod method, String uri) {
     JsonArray point = new JsonArray();
     point.add(System.currentTimeMillis());
+    point.add(remoteHost);
     point.add(method.toString());
     point.add(uri);
     return point;
   }
 
   protected void reportRequestMetric(JsonArray point, int status) {
-    requests.add(point.add(System.currentTimeMillis() - point.getLong(0)).add(status));
+    requests.add(point.add(status).add(System.currentTimeMillis() - point.getLong(0)));
   }
 
   @Override
