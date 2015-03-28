@@ -8,35 +8,32 @@ import io.vertx.core.net.SocketAddress;
 import io.vertx.core.spi.metrics.TCPMetrics;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
 public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetrics<Void> {
 
-  private final AtomicReference<ConcurrentLinkedDeque<JsonArray>> requests = new AtomicReference<>();
+  private final ConcurrentLinkedDeque<JsonArray> requests = new ConcurrentLinkedDeque<>();
   private final String requestSerieName;
 
   public HttpMetricsImpl(Vertx vertx, String requestSerieName, String tcpSerieName) {
     super(vertx, tcpSerieName);
     this.requestSerieName = requestSerieName;
-    requests.set(new ConcurrentLinkedDeque<>());
   }
 
   @Override
   protected void collectSeries(JsonArray series) {
     super.collectSeries(series);
-    ConcurrentLinkedDeque<JsonArray> requests = this.requests.getAndSet(new ConcurrentLinkedDeque<>());
-    JsonObject requestSerie = new JsonObject().
-        put("name", requestSerieName).
-        put("columns", new JsonArray().add("time").add("method").add("uri").add("duration"));
     JsonArray requestPoints = new JsonArray();
-    for (JsonArray requestPoint = requests.poll();requestPoint != null;requestPoint = requests.poll()) {
-      requestPoints.add(requestPoint);
+    for (int size = requests.size();size > 0;size--) {
+      requestPoints.add(requests.pop());
     }
-    requestSerie.put("points", requestPoints);
-    series.add(requestSerie);
+    series.add(new JsonObject().
+        put("name", requestSerieName).
+        put("columns", new JsonArray().add("time").add("method").add("uri").add("duration")).
+        put("points", requestPoints)
+    );
   }
 
   protected JsonArray createRequestMetric(HttpMethod method, String uri) {
@@ -48,8 +45,7 @@ public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetri
   }
 
   protected void reportRequestMetric(JsonArray point) {
-    point.add(System.currentTimeMillis() - point.getLong(0));
-    requests.get().add(point);
+    requests.add(point.add(System.currentTimeMillis() - point.getLong(0)));
   }
 
   @Override
