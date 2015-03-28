@@ -11,7 +11,7 @@ import io.vertx.metrics.influxdb.InfluxDBOptions;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClientMetrics<JsonArray, Void> {
+public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClientMetrics<RequestMetric, SocketMetric> {
 
   public HttpClientMetricsImpl(InfluxDBOptions options, Vertx vertx) {
     super(options, vertx, options.getHttpClientRequestsSerie(), options.getHttpClientTcpSerie());
@@ -23,12 +23,14 @@ public class HttpClientMetricsImpl extends HttpMetricsImpl implements HttpClient
   }
 
   @Override
-  public JsonArray requestBegin(SocketAddress localAddress, SocketAddress remoteAddress, HttpClientRequest request) {
-    return createRequestMetric(localAddress, remoteAddress, request.method(), request.uri());
+  public RequestMetric requestBegin(SocketMetric socketMetric, SocketAddress localAddress, SocketAddress remoteAddress, HttpClientRequest request) {
+    socketMetric.bytesRead = 0;
+    socketMetric.bytesWritten = 0;
+    return new RequestMetric(socketMetric, localAddress, remoteAddress, request.method(), request.uri());
   }
 
   @Override
-  public void responseEnd(JsonArray requestMetric, HttpClientResponse response) {
+  public void responseEnd(RequestMetric requestMetric, HttpClientResponse response) {
     reportRequestMetric(requestMetric, response.statusCode());
   }
 }

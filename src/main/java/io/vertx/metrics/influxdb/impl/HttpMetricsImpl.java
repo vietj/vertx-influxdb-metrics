@@ -1,7 +1,6 @@
 package io.vertx.metrics.influxdb.impl;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.SocketAddress;
@@ -13,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetrics<Void> {
+public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetrics<SocketMetric> {
 
   private final ConcurrentLinkedDeque<JsonArray> requests = new ConcurrentLinkedDeque<>();
   private final String requestSerieName;
@@ -37,28 +36,43 @@ public abstract class HttpMetricsImpl extends TCPMetricsImpl implements TCPMetri
                 add("local_host").add("local_port").
                 add("remote_host").add("remote_port").
                 add("method").add("uri").add("status").
-                add("duration")).
+                add("duration").add("bytes_read").add("bytes_written")).
             put("points", requestPoints)
     );
   }
 
-  protected JsonArray createRequestMetric(SocketAddress localAddress, SocketAddress remoteAddress, HttpMethod method, String uri) {
-    JsonArray point = new JsonArray();
-    point.add(System.currentTimeMillis());
-    point.add(localAddress.host());
-    point.add(localAddress.port());
-    point.add(remoteAddress.host());
-    point.add(remoteAddress.port());
-    point.add(method.toString());
-    point.add(uri);
-    return point;
-  }
-
-  protected void reportRequestMetric(JsonArray point, int status) {
-    requests.add(point.add(status).add(System.currentTimeMillis() - point.getLong(0)));
+  @Override
+  public SocketMetric connected(SocketAddress remoteAddress) {
+    super.connected(remoteAddress);
+    return new SocketMetric();
   }
 
   @Override
-  public void exceptionOccurred(Void socketMetric, SocketAddress remoteAddress, Throwable t) {
+  public void bytesRead(SocketMetric socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
+    super.bytesRead(socketMetric, remoteAddress, numberOfBytes);
+    socketMetric.bytesRead += numberOfBytes;
+  }
+
+  @Override
+  public void bytesWritten(SocketMetric socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
+    super.bytesWritten(socketMetric, remoteAddress, numberOfBytes);
+    socketMetric.bytesWritten += numberOfBytes;
+  }
+
+  protected void reportRequestMetric(RequestMetric requestMetric, int status) {
+    JsonArray point = new JsonArray();
+    long end = System.currentTimeMillis();
+    point.add(end);
+    point.add(requestMetric.localAddress.host());
+    point.add(requestMetric.localAddress.port());
+    point.add(requestMetric.remoteAddress.host());
+    point.add(requestMetric.remoteAddress.port());
+    point.add(requestMetric.method.toString());
+    point.add(requestMetric.uri);
+    point.add(status);
+    point.add(end - requestMetric.start);
+    point.add(requestMetric.socketMetric.bytesRead);
+    point.add(requestMetric.socketMetric.bytesWritten);
+    requests.add(point);
   }
 }

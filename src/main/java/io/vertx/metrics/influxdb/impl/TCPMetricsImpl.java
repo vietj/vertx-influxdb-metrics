@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class TCPMetricsImpl extends ScheduledMetrics implements TCPMetrics<Void> {
+public class TCPMetricsImpl extends ScheduledMetrics implements TCPMetrics<SocketMetric> {
 
   private final String tcpSerieName;
   private final AtomicLong bytesWritten = new AtomicLong();
@@ -40,27 +40,27 @@ public class TCPMetricsImpl extends ScheduledMetrics implements TCPMetrics<Void>
   }
 
   @Override
-  public Void connected(SocketAddress remoteAddress) {
+  public SocketMetric connected(SocketAddress remoteAddress) {
     connectionCount.incrementAndGet();
     return null;
   }
 
   @Override
-  public void disconnected(Void socketMetric, SocketAddress remoteAddress) {
+  public void disconnected(SocketMetric socketMetric, SocketAddress remoteAddress) {
     connectionCount.decrementAndGet();
   }
 
   @Override
-  public void bytesRead(Void socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
+  public void bytesRead(SocketMetric socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
     bytesRead.addAndGet(numberOfBytes);
   }
 
   @Override
-  public void bytesWritten(Void socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
+  public void bytesWritten(SocketMetric socketMetric, SocketAddress remoteAddress, long numberOfBytes) {
     bytesWritten.addAndGet(numberOfBytes);
   }
 
   @Override
-  public void exceptionOccurred(Void socketMetric, SocketAddress remoteAddress, Throwable t) {
+  public void exceptionOccurred(SocketMetric socketMetric, SocketAddress remoteAddress, Throwable t) {
   }
 }
