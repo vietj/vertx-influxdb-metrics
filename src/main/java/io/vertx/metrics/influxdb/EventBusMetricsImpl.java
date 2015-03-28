@@ -1,52 +1,68 @@
 package io.vertx.metrics.influxdb;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.ReplyFailure;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.metrics.EventBusMetrics;
 
 import java.util.Deque;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class EventBusMetricsImpl implements EventBusMetrics {
+public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMetrics {
 
-  private final Vertx vertx;
-  private final HttpClient client;
-  private final Deque<JsonArray> sentPoints = new ConcurrentLinkedDeque<>();
+  private final Deque<JsonArray> sent = new ConcurrentLinkedDeque<>();
+  private final Deque<JsonArray> received = new ConcurrentLinkedDeque<>();
+  private final AtomicReference<ConcurrentMap<String, AtomicLong>> messageBytesWritten = new AtomicReference<>();
+  private final AtomicReference<ConcurrentMap<String, AtomicLong>> messageBytesRead = new AtomicReference<>();
 
   public EventBusMetricsImpl(Vertx vertx) {
-    this.vertx = vertx;
-    this.client = vertx.createHttpClient(new HttpClientOptions().
-        setDefaultHost("localhost").
-        setDefaultPort(8086));
+    super(vertx);
+    messageBytesRead.set(new ConcurrentHashMap<>());
+    messageBytesWritten.set(new ConcurrentHashMap<>());
   }
 
-  private void schedule() {
-    vertx.setTimer(1000, id -> {
-      JsonObject sendPointsSerie = new JsonObject().
-          put("name", "eventbus_sent").
-          put("columns", new JsonArray().add("address").add("publish").add("local").add("remote"));
-      JsonArray sendPointsA = new JsonArray();
-      for (JsonArray point = sentPoints.poll();point != null;point = sentPoints.poll()) {
-        sendPointsA.add(point);
-      }
-      sendPointsSerie.put("points", sendPointsA);
-      JsonArray payload = new JsonArray();
-      payload.add(sendPointsSerie);
-      String s = sendPointsSerie.encode();
-      Buffer buffer = Buffer.buffer(s);
-      HttpClientRequest req = client.post("/db/vertx/series?u=root&p=root");
-      req.write(buffer);
-      schedule();
-    });
+  @Override
+  protected void collectSeries(JsonArray series) {
+    super.collectSeries(series);
+    JsonArray sendPoints = new JsonArray();
+    for (int size = sent.size(); size > 0;size--) {
+      sendPoints.add(sent.pop());
+    }
+    JsonArray receivedPoints = new JsonArray();
+    for (int size = received.size(); size > 0;size--) {
+      sendPoints.add(received.pop());
+    }
+    JsonArray messageBytesPoints = new JsonArray();
+    ConcurrentMap<String, AtomicLong> bytesReadMetrics = messageBytesRead.getAndSet(new ConcurrentHashMap<>());
+    ConcurrentMap<String, AtomicLong> bytesWrittenMetrics = messageBytesWritten.getAndSet(new ConcurrentHashMap<>());
+    for (Map.Entry<String, AtomicLong> bytesReadMetric : bytesReadMetrics.entrySet()) {
+      AtomicLong bytesWrittenMetric = bytesWrittenMetrics.remove(bytesReadMetric.getKey());
+      messageBytesPoints.add(new JsonArray().add(bytesReadMetric.getKey()).add(bytesReadMetric.getValue().get()).add(bytesWrittenMetric != null ? bytesWrittenMetric.get() : 0));
+    }
+    series.add(new JsonObject().
+        put("name", "eventbus_sent").
+        put("columns", new JsonArray().add("time").add("address").add("publish").add("local").add("remote")).
+        put("points", sendPoints)
+    );
+    series.add(new JsonObject().
+        put("name", "eventbus_received").
+        put("columns", new JsonArray().add("time").add("address").add("publish").add("local").add("handlers")).
+        put("points", receivedPoints)
+    );
+    series.add(new JsonObject().
+        put("name", "eventbus_messages_bytes").
+        put("columns", new JsonArray().add("address").add("bytes_read").add("bytes_written")).
+        put("points", messageBytesPoints)
+    );
   }
 
   @Override
@@ -68,18 +84,12 @@ public class EventBusMetricsImpl implements EventBusMetrics {
 
   @Override
   public void messageSent(String address, boolean publish, boolean local, boolean remote) {
-    sentPoints.add(new JsonArray().add(address).add(publish).add(local).add(remote));
+    sent.add(new JsonArray().add(System.currentTimeMillis()).add(address).add(publish).add(local).add(remote));
   }
 
   @Override
   public void messageReceived(String address, boolean publish, boolean local, int handlers) {
-/*
-    Serie serie = new Serie.Builder("message_received")
-        .columns("address", "publish", "local", "handlers")
-        .values(address, publish, local, handlers)
-        .build();
-    influxDB.writeUdp(8088, serie);
-*/
+    received.add(new JsonArray().add(System.currentTimeMillis()).add(address).add(publish).add(local).add(handlers));
   }
 
   @Override
@@ -88,18 +98,11 @@ public class EventBusMetricsImpl implements EventBusMetrics {
 
   @Override
   public void messageWritten(String address, int size) {
+    messageBytesWritten.get().computeIfAbsent(address, key -> new AtomicLong()).addAndGet(size);
   }
 
   @Override
   public void messageRead(String address, int size) {
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
-
-  @Override
-  public void close() {
+    messageBytesRead.get().computeIfAbsent(address, key -> new AtomicLong()).addAndGet(size);
   }
 }
