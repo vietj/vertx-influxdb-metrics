@@ -56,6 +56,9 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
       AtomicLong bytesWrittenMetric = bytesWrittenMetrics.remove(bytesReadMetric.getKey());
       messageBytesPoints.add(new JsonArray().add(bytesReadMetric.getKey()).add(bytesReadMetric.getValue().get()).add(bytesWrittenMetric != null ? bytesWrittenMetric.get() : 0));
     }
+    for (Map.Entry<String, AtomicLong> bytesWrittenMetric : bytesReadMetrics.entrySet()) {
+      messageBytesPoints.add(new JsonArray().add(bytesWrittenMetric.getKey()).add(0).add(bytesWrittenMetric.getValue()));
+    }
     series.add(new JsonObject().
         put("name", options.getEventBusMessageSentSerie()).
         put("columns", new JsonArray().add("time").add("address").add("publish").add("local").add("remote")).
