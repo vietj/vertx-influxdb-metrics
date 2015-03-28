@@ -109,6 +109,10 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
 
   @Override
   public void messageWritten(String address, int size) {
+    if (options.getEventBusTcpSerie().equals("backend_eventbus_tcp") && address.equals("the_address")) {
+      System.out.println("Written to " + address);
+      new Exception().printStackTrace();
+    }
     messageBytesWritten.get().computeIfAbsent(address, key -> new AtomicLong()).addAndGet(size);
   }
 

@@ -23,7 +23,7 @@ public class Main {
 
     Vertx.clusteredVertx(new VertxOptions().
         setClustered(true).
-        setMetricsOptions(new InfluxDBOptions().setEnabled(true).prefixSeriesWith("server_")), ar -> {
+        setMetricsOptions(new InfluxDBOptions().setEnabled(true).prefixSeriesWith("backend_")), ar -> {
       if (ar.succeeded()) {
         Vertx vertx = ar.result();
         vertx.eventBus().consumer("the_address", msg -> {
@@ -42,7 +42,7 @@ public class Main {
 
     Vertx.clusteredVertx(new VertxOptions().
         setClustered(true).
-        setMetricsOptions(new InfluxDBOptions().setEnabled(true).prefixSeriesWith("backend_")), ar -> {
+        setMetricsOptions(new InfluxDBOptions().setEnabled(true).prefixSeriesWith("server_")), ar -> {
       if (ar.succeeded()) {
         Vertx vertx = ar.result();
         HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
