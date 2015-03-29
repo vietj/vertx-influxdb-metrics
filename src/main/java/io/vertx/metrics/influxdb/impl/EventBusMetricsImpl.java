@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMetrics {
 
-  private final InfluxDBOptions options;
   private final Deque<JsonArray> sent = new ConcurrentLinkedDeque<>();
   private final Deque<JsonArray> received = new ConcurrentLinkedDeque<>();
   private final AtomicReference<ConcurrentMap<String, AtomicLong>> messageBytesWritten = new AtomicReference<>();
@@ -30,7 +29,6 @@ public class EventBusMetricsImpl extends ScheduledMetrics implements EventBusMet
     super(options, vertx);
     messageBytesRead.set(new ConcurrentHashMap<>());
     messageBytesWritten.set(new ConcurrentHashMap<>());
-    this.options = options;
   }
 
   @Override

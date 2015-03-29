@@ -16,8 +16,8 @@ public abstract class ScheduledMetrics implements Metrics {
 
   private volatile boolean closed;
   protected final Vertx vertx;
+  protected final InfluxDBOptions options;
   private final HttpClient client;
-  private final InfluxDBOptions options;
   private final String requestURI;
 
   public ScheduledMetrics(InfluxDBOptions options, Vertx vertx) {
