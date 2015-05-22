@@ -62,12 +62,12 @@ public class VertxMetricsImpl implements VertxMetrics {
   }
 
   @Override
-  public HttpServerMetrics<?, ?> createMetrics(HttpServer server, SocketAddress localAddress, HttpServerOptions options) {
+  public HttpServerMetrics<?, ?, ?> createMetrics(HttpServer server, SocketAddress localAddress, HttpServerOptions options) {
     return new HttpServerMetricsImpl(this.options, vertx).schedule();
   }
 
   @Override
-  public HttpClientMetrics<?, ?> createMetrics(HttpClient client, HttpClientOptions options) {
+  public HttpClientMetrics<?, ?, ?> createMetrics(HttpClient client, HttpClientOptions options) {
     return new HttpClientMetricsImpl(this.options, vertx).schedule();
   }
 

@@ -3,13 +3,14 @@ package io.vertx.metrics.influxdb.impl;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.spi.metrics.HttpServerMetrics;
 import io.vertx.metrics.influxdb.InfluxDBOptions;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
  */
-public class HttpServerMetricsImpl extends HttpMetricsImpl implements HttpServerMetrics<RequestMetric, SocketMetric> {
+public class HttpServerMetricsImpl extends HttpMetricsImpl implements HttpServerMetrics<RequestMetric, Void, SocketMetric> {
 
   public HttpServerMetricsImpl(InfluxDBOptions options, Vertx vertx) {
     super(options, vertx, options.getHttpServerRequestsSerie(), options.getHttpServerTcpSerie());
@@ -30,5 +31,16 @@ public class HttpServerMetricsImpl extends HttpMetricsImpl implements HttpServer
   @Override
   public void responseEnd(RequestMetric requestMetric, HttpServerResponse response) {
     reportRequestMetric(requestMetric, response.getStatusCode());
+  }
+
+  @Override
+  public Void connected(SocketMetric socketMetric, ServerWebSocket serverWebSocket) {
+    // Todo
+    return null;
+  }
+
+  @Override
+  public void disconnected(Void aVoid) {
+    // Todo
   }
 }
